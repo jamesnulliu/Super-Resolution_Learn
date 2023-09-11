@@ -8,16 +8,23 @@
 - Jointly optimizes all layers
 - Bicubic interpolation before input?
 
-[Pytorch Impl](https://github.com/yjn870/SRCNN-pytorch/blob/master/models.py) Seems just 3 convs?
+[Pytorch Impl](https://github.com/yjn870/SRCNN-pytorch/blob/master/models.py) Seems just 3 conv layers?
 
 
 ## 2. VGGNet
-VGGNet 采用连续的几个3×3的卷积核代替AlexNet中的较大卷积核, 在保证感受野的情况下提升了网络的深度. 与之对应, 图像超分辨率网络也开始使用更小的卷积核和使用更多的映射层. 
+"*Very Deep Convolutional Networks for Large-Scale Image Recognition.*"  
+
+<p align="center">
+  <img src="imgs/VGG_1.png"><br>
+  Architecture of VGG Net
+</p>
+
+VGGNet uses smaller kernel and deeper layers.
 
 ### 2016: [Accelerating the super-resolution convolutional neural network](https://arxiv.org/pdf/1608.00367v1.pdf) (FSRCNN)
 
 <p align="center">
-  <img src="imgs/FSRCNN_1.png">
+  <img src="imgs/FSRCNN_1.png"><br>
   Conv(<i>f</i>, <i>n</i>, <i>c</i>): conv size, conv number, conv channel
 </p>
 
@@ -30,10 +37,63 @@ VGGNet 采用连续的几个3×3的卷积核代替AlexNet中的较大卷积核, 
 
 
 ## 3. ResNet
-随着ResNet的提出, 残差结构开始在超分辨率网络中普及  
+> *A Residual Neural Network (a.k.a. Residual Network, ResNet) is a deep learning model in which the weight layers learn residual functions with reference to the layer inputs. A Residual Network is a network with skip connections that perform identity mappings, merged with the layer outputs by addition.*
 
-1. Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network (SRResNet)
-2. Accurate Image Super-Resolution Using Very Deep Convolutional Networks (VDSR)
+<p align="center">
+  <img src="imgs/ResBlock_1.png" width=400><br>
+  Residual Block
+</p>
+
+```python
+# https://zhuanlan.zhihu.com/p/463935188
+import torch
+from torch import nn
+from torch.nn import functional as F
+
+class Residual(nn.Module):
+    def __init__(self, input_channels, num_channels, use_conv=False, strides=1):
+        super().__init__()
+        self.conv1 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, stride=strides)
+        self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1)
+        if use_conv:
+            self.conv3 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.BatchNorm2d(num_channels)
+        self.bn2 = nn.BatchNorm2d(num_channels)
+    
+    def forward(self, X):
+        Y = F.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(self.conv2(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        Y += X
+        return F.relu(Y)
+```
+### 2016 [Accurate Image Super-Resolution Using Very Deep Convolutional Networks](https://arxiv.org/pdf/1511.04587v2.pdf) (VDSR)
+
+<p align="center">
+  <img src="imgs/VDSR_1.png"><br>
+  Cascade a pair of layers (convolutional and nonlinear) repeatedly. 
+</p>
+
+- Accurate, single-image SR
+- Increasing network depth imporves accuray
+- Simpe, effective traning procedure
+
+### 2017: [Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network](https://arxiv.org/pdf/1609.04802v5.pdf) (SRResNet)
+
+<p align="center">
+  <img src="imgs/SRGAN_1.png"><br>
+  Architecture of Generator and Discriminator Network with corresponding kernel size (k), number of feature maps (n) and stride (s) indicated for each convolutional layer.
+</p>
+
+[Pytorch Impl 1](https://github.com/twtygqyy/pytorch-SRResNet/blob/master/srresnet.py)  
+[Pytorch Impl 2](https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/esrgan/models.py) Enhanced SRGAN
+
+
+
+
 3. Deeply-Recursive Convolutional Network for Image Super-Resolution (DRCN)
 4. Image Super-Resolution via Deep Recursive Residual Network (DRRN)
 
