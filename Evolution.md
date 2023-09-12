@@ -1,4 +1,5 @@
 <link herf="style.css" rel = "stylesheet"></link>
+
 <style>
 .center 
 {
@@ -209,15 +210,15 @@ class SELayer(nn.Module):
 - A channel attention mechanism to adaptively rescale channel-wise features
 
 <p align="center">
-  <img src="imgs/RCAN_1.png"><br>
+  <img src="imgs/RCAN_1.png" width=80%><br>
   Archetecture of RCAN
 </p>
 <p align="center">
-  <img src="imgs/RCAN_2.png"><br>
+  <img src="imgs/RCAN_2.png" width=80%><br>
   Channel attention (CA)
 </p>
 <p align="center">
-  <img src="imgs/RCAN_3.png"><br>
+  <img src="imgs/RCAN_3.png" width=80%><br>
   Residual channel attention block (RCAB)
 </p>
 
@@ -238,7 +239,7 @@ class SELayer(nn.Module):
 - None-locally enhanced residual attention group
 
 <p align="center">
-  <img src="imgs/SAN_1.png"><br>
+  <img src="imgs/SAN_1.png" width=80%><br>
   Framework of the proposed second-order attention network (SAN) and its sub-modules.
 </p>
 
@@ -248,7 +249,6 @@ class SELayer(nn.Module):
 > The SSRG is composed of G local-source residual attention groups (LSRAG) with share-source skip connections (SSC).  
 > Each LSRAG further contains M simplified residual blocks with local-source skip connection, followed by a second-order channel attention (SOCA) module to exploit feature interdependencie  
 
-**Region-level non-local module (RL-NL)**  
 
 ---
 
@@ -259,54 +259,55 @@ $$
 $$
 
 <p align="center">
-  <img src="imgs/NonLocal_1.png"><br>
-  <img src="imgs/NonLocal_2.png"><br>
+  <img src="imgs/NonLocal_2.png" width=80%><br>
   Input has the same size as output
 </p>
 
 - $g$ is a $1 \times 1$ conv kernel
-- Gaussian: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\mathrm{x}_i^T\cdot\mathrm{x}_j},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
-- Embedded Gaussian: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\theta(\mathrm{x}_i)^T\cdot\phi(\mathrm{x}_j)},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
-- Dot Product: $f(\mathbf{x}_{i},\mathbf{x}_{j})=\theta(\mathbf{x}_{i})^{T}\cdot\phi(\mathbf{x}_{j}),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
-- Concatenation: $f(\mathrm{x}_i,\mathrm{x}_j)=\mathrm{ReLU}(\mathrm{w}_f^T\cdot[\theta(\mathrm{x}_i),\phi(\mathrm{x}_j)]),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
+- **Gaussian**: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\mathrm{x}_i^T\cdot\mathrm{x}_j},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
+- **Embedded Gaussian**: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\theta(\mathrm{x}_i)^T\cdot\phi(\mathrm{x}_j)},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
+- **Dot Product**: $f(\mathbf{x}_{i},\mathbf{x}_{j})=\theta(\mathbf{x}_{i})^{T}\cdot\phi(\mathbf{x}_{j}),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
+- **Concatenation**: $f(\mathrm{x}_i,\mathrm{x}_j)=\mathrm{ReLU}(\mathrm{w}_f^T\cdot[\theta(\mathrm{x}_i),\phi(\mathrm{x}_j)]),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
 
-In order to embed non-local to a network non-local should be designed as a residual block:
+In order to embed non-local to a network, non-local should be designed as a residual block:
 
 $$
 \mathrm{z}_i=W_z\cdot\mathrm{y}_i+\mathrm{x}_i
 $$
 
 <p align="center">
-  <img src="imgs/NonLocal_3.png">
+  <img src="imgs/NonLocal_3.png" width=80%><br>
   Optimization, <i>oc</i> is output channels.
 </p>
 
+[Self-attention](https://arxiv.org/pdf/1706.03762.pdf) is based on NL.
+
 ---
 
-Traditional global level non-local operations may be limited for some reasons:
+**Region-level non-local module (RL-NL)**  
 
-1. Global-level non-local operations require unacceptable
-computational burden, especially when the size of feature
-is large
-2. It is empirically shown that non-local operations
+> Traditional global level non-local operations may be limited for some reasons:
+>
+> 1. Global-level non-local operations require unacceptable computational burden, especially when the size of feature is large
+> 2. It is empirically shown that non-local operations
 at a proper neighborhood size are preferable for low-level
-tasks (e.g., image super-resolution)
-Thus for feature with higher spatial resolution or degradation, it is natural to perform region-level non-local operations.
+tasks (e.g., image super-resolution)  
+>
+> **Thus for feature with higher spatial resolution or degradation, it is natural to perform region-level non-local operations.**
 
 **Local-source residual attention group (LSRAG)**  
-Due to our share-source skip connections, the abundant low frequency information can be bypassed. To go a further
-step to residual learning, we stack M simplified residual
-blocks to form a basic LSRAG.
+> Due to our share-source skip connections, the abundant low frequency information can be bypassed. To go a further step to residual learning, **we stack M simplified residual blocks to form a basic LSRAG**.
 
-**Second-order Channel Attention (SOCA)**
-SENet only exploits first-order statistics of features by global average pooling, while ignoring statistics higher than first-order, thus hindering the discriminative ability of the network.  
-Thus propose a second-order channel attention (SOCA) module to learn feature interdependencies by considiering second-order statistics of features.
+**Second-order Channel Attention (SOCA)**  
+> SENet only exploits first-order statistics of features by global average pooling, while ignoring statistics higher than first-order, thus hindering the discriminative ability of the network.  
+> Propose a second-order channel attention (SOCA) module to learn feature interdependencies by considiering second-order statistics of features.
 - Covariance Normalization
 - Channel Attention
+- Acceleration
 
 ## Single Image Super-Resolution via a Holistic Attention Network (HAN)
-4. Image Super-Resolution with Cross-Scale Non-Local Attention and Exhaustive Self-Exemplars Mining (CSNLN)
-5. Context Reasoning Attention Network for Image Super-Resolution (CRAN)
+## Image Super-Resolution with Cross-Scale Non-Local Attention and Exhaustive Self-Exemplars Mining (CSNLN)  
+## Context Reasoning Attention Network for Image Super-Resolution (CRAN)
 
 由于注意力机制相对简单, 比较容易采用, 因此这一阶段的论文非常多. 也是从这一阶段开始, 超分辨率模型的提升开始变小, 一方面是因为基数较高, 另一方面也是因为注意力机制在超分辨率模型中的收益本就并不高. 以最先采用了通道注意力机制的RCAN为例, 其网络结构如下图所示：
 
