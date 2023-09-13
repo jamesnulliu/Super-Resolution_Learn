@@ -9,6 +9,9 @@
   <img src="imgs/SRCNN_1.png" width=80%><br>
 </p>
 
+&&& 算不算decode?
+&&& 缩小是不是 incode
+
 - End-to-end mapping between the low/high-resolution images
 - Jointly optimizes all layers
 - Bicubic interpolation before input?
@@ -323,7 +326,7 @@ E.g.
 > The animal didn’t cross the street because it was too tired
 > The animal didn’t cross the street because it was too wide
 
-Seq2Seq models are hard to predict the content after 'it' because the content before 'it' is the same.  
+Seq2Seq models are hard to predict the content after *'it'* because the content before 'it' is the same.  
 However, self-attention calculates the importance of each word, and the importance of 'it' is different in the two sentences.
 
 <p align="center">
