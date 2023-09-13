@@ -1,19 +1,13 @@
 <link herf="style.css" rel = "stylesheet"></link>
-<style>
-.center 
-{
-  width: auto;
-  display: table;
-  margin-left: auto;
-  margin-right: auto;
-}
-</style>
+
 
 # Evolution
 ## 1. AlexNet
 ### 2015: [Image super-resolution using deep convolutional networks](https://arxiv.org/pdf/1501.00092v3.pdf) (SRCNN)
 
-![SRCNN_1](imgs/SRCNN_1.png)
+<p align="center">
+  <img src="imgs/SRCNN_1.png" width=80%><br>
+</p>
 
 - End-to-end mapping between the low/high-resolution images
 - Jointly optimizes all layers
@@ -28,10 +22,10 @@
 </div>
 
 ## 2. VGGNet
-"*Very Deep Convolutional Networks for Large-Scale Image Recognition.*"  
+> *Very Deep Convolutional Networks for Large-Scale Image Recognition.*  
 
 <p align="center">
-  <img src="imgs/VGG_1.png"><br>
+  <img src="imgs/VGG_1.png" width=80%><br>
   Architecture of VGG Net
 </p>
 
@@ -49,43 +43,25 @@ VGGNet uses smaller kernel and deeper layers.
 - Non-linear mapping is replaced by shrinking, mapping and expending
 - Smaller fillter size and deeper network structure
 
-[Pytorch Impl](https://github.com/yjn870/FSRCNN-pytorch/blob/master/models.py) Easy to understand.
+<div class="center">
 
+|Implementation|Framework|Understandable|
+|:---:|:---:|:---:|
+|[FSRCNN-pytorch](https://github.com/yjn870/FSRCNN-pytorch/blob/master/models.py)|Pytorch|&#x2705;|
+
+</div>
 
 ## 3. ResNet
+[Paper](https://arxiv.org/pdf/1512.03385)
+[Zhihu & Implementation](https://zhuanlan.zhihu.com/p/463935188)
+
 > *A Residual Neural Network (a.k.a. Residual Network, ResNet) is a deep learning model in which the weight layers learn residual functions with reference to the layer inputs. A Residual Network is a network with skip connections that perform identity mappings, merged with the layer outputs by addition.*
 
 <p align="center">
-  <img src="imgs/ResBlock_1.png" width=400><br>
+  <img src="imgs/ResBlock_1.png" width=50%><br>
   Residual Block
 </p>
 
-```python
-# https://zhuanlan.zhihu.com/p/463935188
-import torch
-from torch import nn
-from torch.nn import functional as F
-
-class Residual(nn.Module):
-    def __init__(self, input_channels, num_channels, use_conv=False, strides=1):
-        super().__init__()
-        self.conv1 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, stride=strides)
-        self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1)
-        if use_conv:
-            self.conv3 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1)
-        else:
-            self.conv3 = None
-        self.bn1 = nn.BatchNorm2d(num_channels)
-        self.bn2 = nn.BatchNorm2d(num_channels)
-    
-    def forward(self, X):
-        Y = F.relu(self.bn1(self.conv1(X)))
-        Y = self.bn2(self.conv2(Y))
-        if self.conv3:
-            X = self.conv3(X)
-        Y += X
-        return F.relu(Y)
-```
 ### 2016 [Accurate Image Super-Resolution Using Very Deep Convolutional Networks](https://arxiv.org/pdf/1511.04587v2.pdf) (VDSR)
 
 - Accurate, single-image SR
@@ -93,14 +69,14 @@ class Residual(nn.Module):
 - Simpe, effective traning procedure
 
 <p align="center">
-  <img src="imgs/VDSR_1.png"><br>
+  <img src="imgs/VDSR_1.png" width=80%><br>
   Cascade a pair of layers (convolutional and nonlinear) repeatedly. 
 </p>
 
 ### 2017: [Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network](https://arxiv.org/pdf/1609.04802v5.pdf) (SRResNet)
 
 <p align="center">
-  <img src="imgs/SRGAN_1.png"><br>
+  <img src="imgs/SRGAN_1.png" width=80%><br>
   Architecture of Generator and Discriminator Network with corresponding kernel size (k), number of feature maps (n) and stride (s) indicated for each convolutional layer.
 </p>
 
@@ -121,14 +97,14 @@ class Residual(nn.Module):
 - Increasing recursion depth can improve performance without introducing new params
 
 <p align="center">
-
-  <img src="imgs/DRCN_1.png"><br>
+  <img src="imgs/DRCN_1.png" width=80%><br>
   Three parts: embedding network, inference network and reconstruction network.<br>
   <br>
-  <img src="imgs/DRCN_2.png"><br>
-  (a): Final (advanced) model with recursive-supervision and skip-connection. The reconstruction network is shared for recursive predictions. <b>All predictions are used from the intermediate recursion to obtain the final output.</b> <span style="text-decoration: line-through">(b): Applying deep-supervision to basic model. Unlike in (a), the model in (b) uses different reconstruction networks for recursions and more parameters are used. (c): An example of expanded structure of (a) without parameter sharing (no recursion). The number of weight parameters is proportional to the depth squared.</span>
-
+  <img src="imgs/DRCN_2.png" width=80%><br>
 </p>
+
+(a): Final (advanced) model with recursive-supervision and skip-connection. The reconstruction network is shared for recursive predictions. <b>All predictions are used from the intermediate recursion to obtain the final output.</b> 
+<span style="text-decoration: line-through">(b): Applying deep-supervision to basic model. Unlike in (a), the model in (b) uses different reconstruction networks for recursions and more parameters are used. (c): An example of expanded structure of (a) without parameter sharing (no recursion). The number of weight parameters is proportional to the depth squared.</span>
 
 <div class="center">
 
@@ -146,14 +122,14 @@ What is DensNet?
 
 ### Image Super-Resolution Using Dense Skip Connections (SRDenseNet)
 
+
 ### Residual Dense Network for Image Super-Resolution (RDN)
 
 ## 5. SENet (Channel Attention), Non-Local Attention
 
-[Squeeze-and-Excitation Network](https://arxiv.org/pdf/1709.01507.pdf) (Channel Attention)
+### [Squeeze-and-Excitation Network](https://arxiv.org/pdf/1709.01507.pdf) (Channel Attention)
 
-> *In this work, we focus instead on the <b>channel
-relationship</b> and propose a novel architectural unit, which we term the “Squeeze-and-Excitation” (SE) block, that adaptively recalibrates channel-wise feature responses by explicitly modelling interdependencies between channels.*
+> *In this work, we focus instead on the <b>channel relationship</b> and propose a novel architectural unit, which we term the “Squeeze-and-Excitation” (SE) block, that adaptively recalibrates channel-wise feature responses by explicitly modelling interdependencies between channels.*
 
 <p align="center">
   <img src="imgs/SENet_1.png"><br>
@@ -163,7 +139,8 @@ relationship</b> and propose a novel architectural unit, which we term the “Sq
 Input: $X \in \R^{(C' \times W'\times H')}$ .
 
 **Step 1: Transformation**  
-$F_{tr}(X)$ is a conv operator maps $X$ to feature map $U \in \R^{(C \times W \times R)}$ . *Each of the learned filters operates with <b>a local receptive field</b> and consequently each unit of the transformation output <b>$U$ is unable to exploit contextual information outside of this region</b>.*  
+$F_{tr}(X)$ is a conv operator maps $X$ to feature map $U \in \R^{(C \times W \times R)}$ .  
+> *Each of the learned filters operates with <b>a local receptive field</b> and consequently each unit of the transformation output <b>$U$ is unable to exploit contextual information outside of this region</b>.*  
 
 **Step 2: Squeeze**  
 *To mitigate this problem, <b>squeeze global spatial information into a channel descriptor</b>. This is
@@ -182,26 +159,6 @@ $$
 F_{sc}(u_c, s_c)=s_cu_c
 $$
 
-```python
-class SELayer(nn.Module):
-    def __init__(self, channel, reduction=16):
-        super(SELayer, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.fc = nn.Sequential(
-            nn.Linear(channel, channel // reduction, bias=False),
-            nn.ReLU(inplace=True),
-            nn.Linear(channel // reduction, channel, bias=False),
-            nn.Sigmoid()
-        )
-
-    def forward(self, x):
-        # {x} should be feature map, not image.
-        b, c, _, _ = x.size()  
-        y = self.avg_pool(x).view(b, c)  # Squeeze
-        y = self.fc(y).view(b, c, 1, 1)
-        return x * y.expand_as(x)
-```
-
 ### (2018) [Image Super-Resolution Using Very Deep Residual Channel Attention Networks](https://openaccess.thecvf.com/content_ECCV_2018/papers/Yulun_Zhang_Image_Super-Resolution_Using_ECCV_2018_paper.pdf) (RCAN)
 
 - A residual in residual (RIR) structure to form very deep network
@@ -209,15 +166,15 @@ class SELayer(nn.Module):
 - A channel attention mechanism to adaptively rescale channel-wise features
 
 <p align="center">
-  <img src="imgs/RCAN_1.png"><br>
+  <img src="imgs/RCAN_1.png" width=80%><br>
   Archetecture of RCAN
 </p>
 <p align="center">
-  <img src="imgs/RCAN_2.png"><br>
+  <img src="imgs/RCAN_2.png" width=80%><br>
   Channel attention (CA)
 </p>
 <p align="center">
-  <img src="imgs/RCAN_3.png"><br>
+  <img src="imgs/RCAN_3.png" width=80%><br>
   Residual channel attention block (RCAB)
 </p>
 
@@ -232,13 +189,46 @@ class SELayer(nn.Module):
 
 > *Not dramatically improved compared to RDN.*
 
+---
+
+### [NL](https://zhuanlan.zhihu.com/p/33345791) (Non-Local Attention)
+
+$$
+\mathrm{y}_i=\frac{1}{\mathcal{C}(\mathrm{x})}\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)g(\mathrm{x}_j)
+$$
+
+<p align="center">
+  <img src="imgs/NonLocal_2.png" width=80%><br>
+  Size of input is the same as output.
+</p>
+
+- $g$ is a $1 \times 1$ conv kernel
+- **Gaussian**: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\mathrm{x}_i^T\cdot\mathrm{x}_j},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
+- **Embedded Gaussian**: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\theta(\mathrm{x}_i)^T\cdot\phi(\mathrm{x}_j)},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
+- **Dot Product**: $f(\mathbf{x}_{i},\mathbf{x}_{j})=\theta(\mathbf{x}_{i})^{T}\cdot\phi(\mathbf{x}_{j}),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
+- **Concatenation**: $f(\mathrm{x}_i,\mathrm{x}_j)=\mathrm{ReLU}(\mathrm{w}_f^T\cdot[\theta(\mathrm{x}_i),\phi(\mathrm{x}_j)]),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
+
+In order to embed non-local to a network, non-local should be designed as a residual block:
+
+$$
+\mathrm{z}_i=W_z\cdot\mathrm{y}_i+\mathrm{x}_i
+$$
+
+<p align="center">
+  <img src="imgs/NonLocal_3.png" width=80%><br>
+  Optimization, <i>oc</i> is output channels.
+</p>
+
+[Self-attention](https://arxiv.org/pdf/1706.03762.pdf) is based on NL.
+
+
 ### CVPR 2019: [Second-order Attention Network for Single Image Super-Resolution](https://openaccess.thecvf.com/content_CVPR_2019/papers/Dai_Second-Order_Attention_Network_for_Single_Image_Super-Resolution_CVPR_2019_paper.pdf) (SAN)
 
 - A novel trainable second-order channel attention (SOCA) model rescales the channel-wise features by using second-order feature stastics
 - None-locally enhanced residual attention group
 
 <p align="center">
-  <img src="imgs/SAN_1.png"><br>
+  <img src="imgs/SAN_1.png" width=80%><br>
   Framework of the proposed second-order attention network (SAN) and its sub-modules.
 </p>
 
@@ -248,78 +238,110 @@ class SELayer(nn.Module):
 > The SSRG is composed of G local-source residual attention groups (LSRAG) with share-source skip connections (SSC).  
 > Each LSRAG further contains M simplified residual blocks with local-source skip connection, followed by a second-order channel attention (SOCA) module to exploit feature interdependencie  
 
-**Region-level non-local module (RL-NL)**  
+**a. Region-level non-local module (RL-NL)**  
 
----
-
-[What is non-local block?](https://zhuanlan.zhihu.com/p/33345791)
-
-$$
-\mathrm{y}_i=\frac{1}{\mathcal{C}(\mathrm{x})}\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)g(\mathrm{x}_j)
-$$
-
-<p align="center">
-  <img src="imgs/NonLocal_1.png"><br>
-  <img src="imgs/NonLocal_2.png"><br>
-  Input has the same size as output
-</p>
-
-- $g$ is a $1 \times 1$ conv kernel
-- Gaussian: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\mathrm{x}_i^T\cdot\mathrm{x}_j},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
-- Embedded Gaussian: $f(\mathrm{x}_i,\mathrm{x}_j)=e^{\theta(\mathrm{x}_i)^T\cdot\phi(\mathrm{x}_j)},\mathcal{C}(x)=\sum_{\forall j}f(\mathrm{x}_i,\mathrm{x}_j)$
-- Dot Product: $f(\mathbf{x}_{i},\mathbf{x}_{j})=\theta(\mathbf{x}_{i})^{T}\cdot\phi(\mathbf{x}_{j}),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
-- Concatenation: $f(\mathrm{x}_i,\mathrm{x}_j)=\mathrm{ReLU}(\mathrm{w}_f^T\cdot[\theta(\mathrm{x}_i),\phi(\mathrm{x}_j)]),\mathcal{C}(x)=|\{i|i\text{ is a valid index of x}\}|$
-
-In order to embed non-local to a network non-local should be designed as a residual block:
-
-$$
-\mathrm{z}_i=W_z\cdot\mathrm{y}_i+\mathrm{x}_i
-$$
-
-<p align="center">
-  <img src="imgs/NonLocal_3.png">
-  Optimization, <i>oc</i> is output channels.
-</p>
-
----
-
-Traditional global level non-local operations may be limited for some reasons:
-
-1. Global-level non-local operations require unacceptable
-computational burden, especially when the size of feature
-is large
-2. It is empirically shown that non-local operations
+> Traditional global level non-local operations may be limited for some reasons:
+>
+> 1. Global-level non-local operations require unacceptable computational burden, especially when the size of feature is large
+> 2. It is empirically shown that non-local operations
 at a proper neighborhood size are preferable for low-level
-tasks (e.g., image super-resolution)
-Thus for feature with higher spatial resolution or degradation, it is natural to perform region-level non-local operations.
+tasks (e.g., image super-resolution)  
+>
+> **Thus for feature with higher spatial resolution or degradation, it is natural to perform region-level non-local operations.**
 
-**Local-source residual attention group (LSRAG)**  
-Due to our share-source skip connections, the abundant low frequency information can be bypassed. To go a further
-step to residual learning, we stack M simplified residual
-blocks to form a basic LSRAG.
+**b. Local-source residual attention group (LSRAG)**  
+> Due to our share-source skip connections, the abundant low frequency information can be bypassed. To go a further step to residual learning, **we stack M simplified residual blocks to form a basic LSRAG**.
 
-**Second-order Channel Attention (SOCA)**
-SENet only exploits first-order statistics of features by global average pooling, while ignoring statistics higher than first-order, thus hindering the discriminative ability of the network.  
-Thus propose a second-order channel attention (SOCA) module to learn feature interdependencies by considiering second-order statistics of features.
+**c. Second-order Channel Attention (SOCA)**  
+> SENet only exploits first-order statistics of features by global average pooling, while ignoring statistics higher than first-order, thus hindering the discriminative ability of the network.  
+> Propose a second-order channel attention (SOCA) module to learn **feature interdependencies** by considiering second-order statistics of features.
 - Covariance Normalization
 - Channel Attention
+- Acceleration
 
-## Single Image Super-Resolution via a Holistic Attention Network (HAN)
-4. Image Super-Resolution with Cross-Scale Non-Local Attention and Exhaustive Self-Exemplars Mining (CSNLN)
-5. Context Reasoning Attention Network for Image Super-Resolution (CRAN)
+<div class="center">
 
-由于注意力机制相对简单, 比较容易采用, 因此这一阶段的论文非常多. 也是从这一阶段开始, 超分辨率模型的提升开始变小, 一方面是因为基数较高, 另一方面也是因为注意力机制在超分辨率模型中的收益本就并不高. 以最先采用了通道注意力机制的RCAN为例, 其网络结构如下图所示：
+|Implementation|Framework|Understandable|
+|:---:|:---:|:---:|
+|[SAN](https://github.com/daitao/SAN/blob/master/TrainCode/model/san.py#L347)|Pytorch|&#x274E;|
 
-![img](https://pic1.zhimg.com/80/v2-7e90a2150c0bc20222388b0ef643ab78_720w.webp)
+</div>
 
-该论文中通道注意力机制Channel Attention(CA)也是一个主要创新点, 但从消融实验结果来看, Channel Attention的效果非常一般, 单独使用提升了0.07, 配合两种残差结构LSC, SSC一起使用仅提升了0.03, 效果明显小于两种残差连接 (LSC和SSC), 还得考虑Channel Attention增加的计算量. 
+### 2020: Single Image Super-Resolution via a Holistic Attention Network (HAN)
 
-个人认为, Channel Attention在超分辨率中效果一般的原因在于：超分网络每个子模块的通道数保持不变, 不会像分类网络/backbone那样随着网络的加深, 特征图分辨率变小, 通道数变多. 通道注意力机制需要在通道数较多时, 才能提取足够的信息来建立通道间的关系. 而RCAN的每个子模块通道数为64, 明显少于一般backbone的256, 512, 1024, 因此失效. 同理, 由于输入图片的分辨率较低, 空间注意力机制Spatial Attention的效果应该也不会太好, 理论上Spatial Attention不太适用于RCAN这类后端上采样的超分网络. 从下表更能看出, 各种注意力机制的堆叠 (RCAN/SAN/HAN)相比于只采用密集连接+残差的RDN提升并不明显. 
+[Paper Download](https://arxiv.org/pdf/2008.08767.pdf)
 
-![img](https://pic4.zhimg.com/80/v2-47bd3c05abac4623447a0d6c9fce3d3f_720w.webp)
+Importance:
+- Channel attention treats each convolution layer as a separate process that misses the correlation among different layers
+- Layer attention module (LAM) and a channel-spatial attention module (CSAM), to model the **holistic interdependencies** among layers, channels, and positions
+
+<p align="center">
+  <img src="imgs/HAN_1.png" width=80%><br>
+  Architecture of HAN.
+</p>
+
+1. The first convolutional layer extracts a set of shallow feature maps. <br>
+2. Then a series of residual groups further extract features.<br>
+3. LAM learns <b>the correlations of each output from RGs</b>.<br> 
+4. CSAM learns <b>the interdependencies between channels and pixels</b>.
+
+<p align="center">
+  <img src="imgs/HAN_2.png" width=80%><br>
+  Architecture of the proposed LAM.
+</p>
+
+<p align="center">
+  <img src="imgs/HAN_3.png" width=80%><br>
+  Architecture of the proposed CSAM.
+</p>
+
+<p align="center">
+  <img src="imgs/HAN_4.png" width=80%><br>
+  Quantitative results with BI degradation model.
+</p>
+
+### Image Super-Resolution with Cross-Scale Non-Local Attention and Exhaustive Self-Exemplars Mining (CSNLN)  
+
+
+### Context Reasoning Attention Network for Image Super-Resolution (CRAN)
 
 ## 6. ViT (Transformer)
-1. Pre-Trained Image Processing Transformer (IPT, CVPR 202)1
+
+### Self-Attention + Transformer
+
+- [Attention is all you need, 2017](https://arxiv.org/pdf/1706.03762)
+- [Slef-Attention Review, cn](https://zhuanlan.zhihu.com/p/410776234)
+- [Transformer Review, cn](https://zhuanlan.zhihu.com/p/311156298)
+
+> *The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder.*
+>
+> *We propose a new simple network architecture, the Transformer, **based solely on attention mechanisms, dispensing with recurrence and convolutions entirely**.*
+
+Slef-Attention allows the model to **weigh the importance of different elements** in an input sequence and **dynamically adjust their influence** on the output.
+
+E.g.
+> The animal didn’t cross the street because it was too tired
+> The animal didn’t cross the street because it was too wide
+
+Seq2Seq models are hard to predict the content after 'it' because the content before 'it' is the same.  
+However, self-attention calculates the importance of each word, and the importance of 'it' is different in the two sentences.
+
+<p align="center">
+  <img src="imgs/Transformer_1.png" width=80%><br>
+  Saled Dot-Product Attention vs. Multi-Head Attention
+</p>
+
+> *Instead of performing a single attention function with dmodel-dimensional keys, values and queries, we found it beneficial to linearly project the queries, keys and values h times with **different, learned linear projections** to dk, dk and dv dimensions, respectively.*
+
+```python
+# input : batch_size * seq_len * input_dim
+Q = self.q(x).reshape(-1,x.shape[0],x.shape[1],self.dim_k // self.nums_head) 
+K = self.k(x).reshape(-1,x.shape[0],x.shape[1],self.dim_k // self.nums_head) 
+V = self.v(x).reshape(-1,x.shape[0],x.shape[1],self.dim_v // self.nums_head)
+```
+
+
+### CVPR 2021: Pre-Trained Image Processing Transformer (IPT)
 
 IPT采用了原版的Transformer, 模型的参数量很大 (116M), 因此模型训练的难度会比较大, 作者利用ImageNet作为基线数据集来预训练模型. 
 
@@ -344,7 +366,7 @@ IPT采用了原版的Transformer, 模型的参数量很大 (116M), 因此模型�
 EDT论文中指出：预训练在不同low-level任务中起不同的作用. 比如, 在超分任务中, 预训练可以为更高层引入更多局部信息, 进而产生显著性能提升; 与此同时, 预训练几乎不会影响降噪网络的内部特征表达, 故而产生了轻微的性能提升. 更进一步, 通过探索了不同的预训练方法并证实：多任务预训练更有效且数据高效. 
 
 ## 9. MLP
-1. MAXIM: Multi-Axis MLP for Image Processing (MAXIM, CVPR 202)2
+1. MAXIM: Multi-Axis MLP for Image Processing (MAXIM, CVPR 2022)
 
 MAXIM这篇论文实际上没有做图像超分辨率, 而是做了去噪, 去模糊, 去雨, 去雾, 增强五个任务. 超分任务一般用单尺度的架构, 而这篇文章采用了UNet作为基础算法, 具有多尺度结构, 所以没有做超分 (一样的情况还有Uformer: A General U-Shaped Transformer for Image Restoration, 也是采用了UNet结构, 做了其他底层视觉任务但没有做超分). 但实际上, 把MAXIM或者其他MLP变体的主要block搬到单尺度的超分拓扑中, 应该也是完全行得通的. 
 
