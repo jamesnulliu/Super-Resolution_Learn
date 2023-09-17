@@ -336,13 +336,37 @@ However, self-attention calculates the importance of each word, and the importan
 
 > *Instead of performing a single attention function with dmodel-dimensional keys, values and queries, we found it beneficial to linearly project the queries, keys and values h times with **different, learned linear projections** to dk, dk and dv dimensions, respectively.*
 
-```python
-# input : batch_size * seq_len * input_dim
-Q = self.q(x).reshape(-1,x.shape[0],x.shape[1],self.dim_k // self.nums_head) 
-K = self.k(x).reshape(-1,x.shape[0],x.shape[1],self.dim_k // self.nums_head) 
-V = self.v(x).reshape(-1,x.shape[0],x.shape[1],self.dim_v // self.nums_head)
-```
 
+### ViT
+https://zhuanlan.zhihu.com/p/445122996
+<p align="center">
+  <img src="imgs/ViT_1.png" width=80%><br>
+</p>
+
+
+前提: Transformer 在 NLP 很好的应用, 而在视觉领域, Attenttion 机制多被用于卷积操作的一部分.
+作者提出使用纯粹的 Transformer 机制进行图像识别, 模型简单效果好, 扩展性强
+
+但是当训练数据集不够大的时候，ViT的表现通常比同等大小的ResNets要差一些, 因为 Transformer 和 CNN 相比缺少归纳偏置（inductive bias），即一种先验知识，提前做好的假设。CNN具有两种归纳偏置，一种是局部性（locality/two-dimensional neighborhood structure），即图片上相邻的区域具有相似的特征；一种是平移不变形 (translation equivariance), $f(g(x))=g(f(x))$，其中g代表卷积操作，f代表平移操作。当CNN具有以上两种归纳偏置，就有了很多先验信息，需要相对少的数据就可以学习一个比较好的模型
+
+不管使用哪种位置编码方式，模型的精度都很接近，甚至不适用位置编码，模型的性能损失也没有特别大。原因可能是ViT是作用在image patch上的，而不是image pixel，对网络来说这些patch之间的相对位置信息很容易理解，所以使用什么方式的位置编码影像都不大
+
+### Swing Tranformer
+https://arxiv.org/pdf/2103.14030v1.pdf
+https://zhuanlan.zhihu.com/p/401661320
+
+<p align="center">
+  <img src="imgs/SwinTransformer_1.png" width=80%><br>
+  <img src="imgs/SwinTransformer_2.png" width=80%><br>
+</p>
+
+Transformer应用在机器视觉领域遇到的问题：
+1. 图片的scale变化非常大，非标准固定的
+
+2. 相比较于文本信息，图片有更大的像素分辨率，Transformer的计算复杂度是token数量的平方(图1,每个token都要与其他token计算QK值)，如果将每个像素值算作一个token，其计算量非常大，不利于在多种机器视觉任务中的应用
+
+通过与CNN相似的分层结构来处理图片，使得模型能够灵活处理不同尺度的图片
+Swin Transformer 采用的是window self-attention，降低了计算复杂度。
 
 ### CVPR 2021: Pre-Trained Image Processing Transformer (IPT)
 
@@ -353,9 +377,36 @@ IPT采用了原版的Transformer, 模型的参数量很大 (116M), 因此模型�
 ## 7. Transformer 魔改
 在这一阶段, 分类模型的优化基本演变为了Transformer的魔改, 主要改进方向有两个： (1)对Transformer本身的优化, 包括模型结构优化, 轻量化等;  (2)CNN和Transformer的结合, 以Swin Transformer为典型代表. 这些Transformer的魔改同样被搬到了底层视觉任务. 
 
-1. SwinIR: Image Restoration Using Swin Transformer (SwinIR, ICCV 202)1
-2. Image super-resolution with non-local sparse attention (NLSA, CVPR 202)1
-3. Efficient Non-Local Contrastive Attention for Image Super-Resolution (ENLCA, AAAI 202)2
+### SwinIR: Image Restoration Using Swin Transformer (SwinIR, ICCV 2021)
+
+<p align="center">
+  <img src="imgs/SwinIR_1.png" width=80%><br>
+</p>
+
+### Image super-resolution with non-local sparse attention (NLSA, CVPR 2021)
+
+图像超分是一个被研究多年的任务，作为一个非适定性（ill-posed）问题，往往需要加入许多图像先验作为正则化，例如最具有代表性的稀疏、非局部先验。
+
+稀疏性约束在单张图超分SISR上已被很好地探索，利用稀疏编码（sparse coding），图像（图块）可视作预先定义好的过完备字典、小波（wavelet）、曲波（curvelet）的稀疏线性组合。深度学习方法例如 SRCNN 也首先使用卷积实现了稀疏编码（50%的特征被ReLU置为0），等等。
+
+此外，非局部的图像先验（Non-Local，NL）也被很好地探索。NL通过全局搜索相关联的特征进行叠加来增强图像表征。不过应用在SISR上时会出现两个问题：
+
+在网络深层，特征的感受野很大甚至是全局性的，会导致 NL计算的互相关性不准确。
+NL需要计算每个点之间的互相关性，此计算量与图像大小成平方正相关，为了解决这个问题，一般会计算局部的相关性，但这样做又会失去全局的特征。
+
+对此，本文为SISR任务提出一种稀疏的全局注意力模块，以此大大降低NL的计算量，并将其嵌入例如EDSR这样的网络来形成 Non-Local Sparse Network (NLSN)。
+
+为了实现在全局稀疏地搜寻最相关的元素，我们使用了 Spherical Locality Sensitive Hashing (LSH)来形成Attention buckets，每个buckets包含与query全局中最相关的元素。具体来说，可以将特征通过它们的角度距离来分组。因此，即使注意力只覆盖一个组，它仍然可以捕获大部分的相关元素。
+
+一般来说，如果附近的元素很有可能落入同一个哈希桶（hash bucket），而远处的元素可能性低，那么这个哈希方法就被视作位置敏感的哈希方法LSH。球形LSH则是为角距离设计的LSH的一个实例。我们可以直观地认为它是随机旋转一个刻在超球上的正轴形，如图2的上分支所示。哈希函数将一个张量投射到超球上，然后选择最接近的多面体作为其哈希代码。因此，如果两个向量的角度距离很小，它们很可能落在同一个哈希桶里，这也是定义的注意力桶。
+
+<p align="center">
+  <img src="imgs/NLSA_1.png" width=80%><br>
+</p>
+
+
+
+3. Efficient Non-Local Contrastive Attention for Image Super-Resolution (ENLCA, AAAI 2022)
 4. Rich CNN-Transformer Feature Aggregation Networks for Super-Resolution (AC)T
 
 这些模型的创新不是很足, 有些甚至可以说是Transformer变体在底层视觉任务中的应用, 如SwinIR套用了Swin Transformer, NLSA套用了ReFormer. 但像SwinIR等基本都会做多个底层视觉任务, 工作量都很大. 
@@ -363,7 +414,7 @@ IPT采用了原版的Transformer, 模型的参数量很大 (116M), 因此模型�
 在这一阶段的魔改中, Swin Transformer算是一个非常成功的改进, 创造性的提出了局部注意力计算模块LSA, 即仅仅在窗口内计算自注意力, 相比ViT性能也有极大的提升, 将Transformer 实用性提升了一大步. 而更多的论文则是对Transformer引入CNN的局部信息来提升性能和收敛速度, 虽然多少有些效果, 但这种混合CNN和Transformer的做法我觉得违背了设计初衷. 但是从目前来看, CNN和Transformer本身就没啥好特意区分的, 两者在某个角度上甚至是等价的. 
 
 ## 8. Pre-training + Transformer
-1. On Efficient Transformer-Based Image Pre-training for Low-Level Vision (ED)T
+1. On Efficient Transformer-Based Image Pre-training for Low-Level Vision (EDT)
 2. Activating More Pixels in Image Super-Resolution Transformer (HA)T
 
 EDT论文中指出：预训练在不同low-level任务中起不同的作用. 比如, 在超分任务中, 预训练可以为更高层引入更多局部信息, 进而产生显著性能提升; 与此同时, 预训练几乎不会影响降噪网络的内部特征表达, 故而产生了轻微的性能提升. 更进一步, 通过探索了不同的预训练方法并证实：多任务预训练更有效且数据高效. 
